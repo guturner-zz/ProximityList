@@ -1,7 +1,11 @@
 package com.guy.proximitylist;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
@@ -12,8 +16,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+import com.guy.proximitylist.content.ListEntry;
 import com.guy.proximitylist.db.ProximityListContract;
 import com.guy.proximitylist.db.ProximityListDBHelper;
 
@@ -23,8 +30,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-
-public class WelcomeActivity extends ActionBarActivity {
+public class WelcomeActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String DB_NAME = "proximitylist";
 
@@ -47,8 +53,16 @@ public class WelcomeActivity extends ActionBarActivity {
     private EditText longitudeEditTxt;
     private Button findCoordBtn;
     private Button saveCoordBtn;
+    private ListView lv;
 
     private Button newListBtn;
+
+    private SimpleCursorAdapter simpleCursorAdapter;
+
+    static final String[] projection = new String[] {
+        ProximityListContract.ProximityListEntry._ID,
+        ProximityListContract.ProximityListEntry.ENTRY_NAME
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +86,25 @@ public class WelcomeActivity extends ActionBarActivity {
 
         //locOneBtn = (Button)findViewById(R.id.loc_1_btn);
         //locTwoBtn = (Button)findViewById(R.id.loc_2_btn);
+
+        // Maps DB columns to listview elements:
+        String[] fromCols = { ProximityListContract.ProximityListEntry._ID, ProximityListContract.ProximityListEntry.ENTRY_NAME };
+        int[] toViews     = { 0, R.id.list_name };
+
+        // Default adapter to be changed in onLoadFinished:
+        simpleCursorAdapter = new SimpleCursorAdapter(
+                getBaseContext(),
+                R.layout.list_layout,
+                null, // DB Cursor. To be updated later
+                fromCols,
+                toViews,
+                0
+        );
+        lv = (ListView) findViewById(R.id.lists_lv);
+        lv.setAdapter(simpleCursorAdapter);
+
+        // Start a new loader:
+        getLoaderManager().initLoader(0, null, this);
 
         newListBtn = (Button)findViewById(R.id.new_list_btn);
 
@@ -99,6 +132,7 @@ public class WelcomeActivity extends ActionBarActivity {
             }
         });
         */
+
     }
 
     private void createNewList(String listName) {
@@ -106,11 +140,15 @@ public class WelcomeActivity extends ActionBarActivity {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(ProximityListContract.ProximityListEntry.COLUMN_NAME_ENTRY_NAME, listName);
+        values.put(ProximityListContract.ProximityListEntry.ENTRY_NAME, listName);
 
         db.insert(ProximityListContract.ProximityListEntry.TABLE_NAME,
                   "null",
                   values);
+
+        // Reload ListView:
+        Cursor c = dbHelper.getAllListEntries();
+        simpleCursorAdapter.swapCursor(c);
 
         System.out.println(DatabaseUtils.queryNumEntries(db, ProximityListContract.ProximityListEntry.TABLE_NAME));
     }
@@ -135,6 +173,30 @@ public class WelcomeActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(
+            this,
+            ListEntry.CONTENT_URI,
+            projection,
+            null,
+            null,
+            null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // Swap the cursor into the cursor adapter:
+        simpleCursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // Called when the cursor provided in onLoadFinished is no longer needed:
+        simpleCursorAdapter.swapCursor(null);
     }
 
     /*

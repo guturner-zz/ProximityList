@@ -19,6 +19,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:authorities="com.guy.proximitylist.content.listentry"
+            android:name=".content.ListEntry" />
     </application>
 
 </manifest>
