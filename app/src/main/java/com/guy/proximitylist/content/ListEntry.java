@@ -13,7 +13,9 @@ import com.guy.proximitylist.db.ProximityListDBHelper;
  */
 public class ListEntry extends ContentProvider {
     public static final String PROVIDER_NAME = "com.guy.proximitylist.content.listentry";
-    public static final Uri CONTENT_URI = Uri.parse("content://" + PROVIDER_NAME + "/listentries");
+    public static final Uri    CONTENT_URI   = Uri.parse("content://" + PROVIDER_NAME + "/listentries");
+
+    /* Query Switches */
     private static final int LISTENTRIES = 1;
 
     private static final UriMatcher uriMatcher;
