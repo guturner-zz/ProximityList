@@ -1,9 +1,11 @@
 package com.guy.proximitylist;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -11,6 +13,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,6 +54,7 @@ public class WelcomeActivity extends ActionBarActivity implements LoaderManager.
 
     private EditText latitudeEditTxt;
     private EditText longitudeEditTxt;
+    private EditText newEntryNameTxt;
     private Button findCoordBtn;
     private Button saveCoordBtn;
     private ListView lv;
@@ -106,12 +110,36 @@ public class WelcomeActivity extends ActionBarActivity implements LoaderManager.
         // Start a new loader:
         getLoaderManager().initLoader(0, null, this);
 
-        newListBtn = (Button)findViewById(R.id.new_list_btn);
+        newListBtn = (Button) findViewById(R.id.new_list_btn);
 
         newListBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createNewList("ABC");
+                AlertDialog alert = new AlertDialog.Builder(WelcomeActivity.this).create();
+                alert.setTitle("New List");
+
+                LayoutInflater inflater = getLayoutInflater();
+                final View view = inflater.inflate(R.layout.new_list_entry_layout, null);
+                alert.setView(view);
+
+                alert.setButton(DialogInterface.BUTTON_POSITIVE, "OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                newEntryNameTxt = (EditText) view.findViewById(R.id.new_list_name_txt);
+                                createNewList(newEntryNameTxt.getText().toString());
+                            }
+                        });
+
+                alert.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+                alert.show();
             }
         });
 
