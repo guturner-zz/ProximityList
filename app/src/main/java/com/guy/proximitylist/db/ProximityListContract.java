@@ -20,4 +20,18 @@ public class ProximityListContract {
                 ENTRY_NAME + " TEXT" +
                 " )";
     }
+
+    public static abstract class ProximityListItem implements BaseColumns {
+        public static final String TABLE_NAME = "item";
+        public static final String ITEM_NAME = "itemname";
+        public static final String LIST_ID   = "listid";
+
+        public static final String SQL_CREATE =
+                "CREATE TABLE " + TABLE_NAME + " ( " +
+                "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                ITEM_NAME + " TEXT," +
+                LIST_ID + " INTEGER, " +
+                " FOREIGN KEY (" + LIST_ID + ") REFERENCES " + ProximityListEntry.TABLE_NAME + " (" + ProximityListEntry._ID + ")" +
+                " )";
+    }
 }

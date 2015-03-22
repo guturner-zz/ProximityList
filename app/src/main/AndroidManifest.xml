@@ -21,14 +21,19 @@
 
         <activity
             android:name=".activity.ListSummaryActivity"
-            android:label="ListSummary"
-            android:parentActivityName=".activity.WelcomeActivity">
-
+            android:label="ListSummary">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.guy.proximitylist.activity.WelcomeActivity" />
         </activity>
 
         <provider
             android:authorities="com.guy.proximitylist.content.listentry"
             android:name=".content.ListEntry" />
+
+        <provider
+            android:authorities="com.guy.proximitylist.content.listitem"
+            android:name=".content.ListItem" />
     </application>
 
 </manifest>

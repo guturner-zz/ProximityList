@@ -25,4 +25,21 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp" />
 
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_summary_lv"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="125dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add New Item"
+        android:id="@+id/new_item_btn"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="75dp"/>
+
+
 </RelativeLayout>

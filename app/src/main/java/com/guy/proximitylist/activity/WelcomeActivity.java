@@ -1,5 +1,6 @@
 package com.guy.proximitylist.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
@@ -32,11 +33,10 @@ import com.guy.proximitylist.db.ProximityListDBHelper;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-public class WelcomeActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-
-    private static final String DB_NAME = "proximitylist";
+public class WelcomeActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_LIST_NAME = "com.guy.proximitylist.activity.LISTNAME";
+    public static final String EXTRA_LIST_ID   = "com.guy.proximitylist.activity.LISTID";
 
     private static final long MIN_DIST_DELTA_FOR_UPDATE = 1;
     private static final long MIN_TIME_TWEEN_UPDATES = 1000;
@@ -56,11 +56,10 @@ public class WelcomeActivity extends ActionBarActivity implements LoaderManager.
     private EditText latitudeEditTxt;
     private EditText longitudeEditTxt;
     private EditText newEntryNameTxt;
-    private Button findCoordBtn;
-    private Button saveCoordBtn;
+    private Button   findCoordBtn;
+    private Button   newListBtn;
+    private Button   saveCoordBtn;
     private ListView lv;
-
-    private Button newListBtn;
 
     private SimpleCursorAdapter simpleCursorAdapter;
 
@@ -112,7 +111,8 @@ public class WelcomeActivity extends ActionBarActivity implements LoaderManager.
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView listNameTxt = (TextView) view.findViewById(R.id.list_name_txt);
                 String listName      = listNameTxt.getText().toString();
-                openListSummary(view, listName);
+                String listId        = simpleCursorAdapter.getCursor().getString(0);
+                openListSummary(view, listName, listId);
             }
         });
 
@@ -171,11 +171,13 @@ public class WelcomeActivity extends ActionBarActivity implements LoaderManager.
 
     }
 
-    private void openListSummary(View view, String listName) {
+    private void openListSummary(View view, String listName, String listId) {
         Intent intent   = new Intent(this, ListSummaryActivity.class);
         intent.putExtra(EXTRA_LIST_NAME, listName);
+        intent.putExtra(EXTRA_LIST_ID, listId);
 
         startActivity(intent);
+        overridePendingTransition(0, 0);
     }
 
     private void createNewList(String listName) {
@@ -192,30 +194,6 @@ public class WelcomeActivity extends ActionBarActivity implements LoaderManager.
         // Reload ListView:
         Cursor c = dbHelper.getAllListEntries();
         simpleCursorAdapter.swapCursor(c);
-
-        System.out.println(DatabaseUtils.queryNumEntries(db, ProximityListContract.ProximityListEntry.TABLE_NAME));
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_welcome, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

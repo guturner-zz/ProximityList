@@ -22,6 +22,7 @@ public class ProximityListDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(ProximityListContract.ProximityListEntry.SQL_CREATE);
+        db.execSQL(ProximityListContract.ProximityListItem.SQL_CREATE);
     }
 
     @Override
@@ -34,6 +35,18 @@ public class ProximityListDBHelper extends SQLiteOpenHelper {
                 ProximityListContract.ProximityListEntry.TABLE_NAME,
                 new String[] { ProximityListContract.ProximityListEntry._ID, ProximityListContract.ProximityListEntry.ENTRY_NAME },
                 null,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    public Cursor getAllListItems(String listId) {
+        return db.query(
+                ProximityListContract.ProximityListItem.TABLE_NAME,
+                new String[] { ProximityListContract.ProximityListItem._ID, ProximityListContract.ProximityListItem.ITEM_NAME },
+                ProximityListContract.ProximityListItem.LIST_ID + " = " + listId,
                 null,
                 null,
                 null,
