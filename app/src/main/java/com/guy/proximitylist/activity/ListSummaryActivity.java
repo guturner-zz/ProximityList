@@ -9,16 +9,15 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBarActivity;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.guy.proximitylist.R;
+import com.guy.proximitylist.adapter.ListSummaryCursorAdapter;
 import com.guy.proximitylist.content.ListItem;
 import com.guy.proximitylist.db.ProximityListContract;
 import com.guy.proximitylist.db.ProximityListDBHelper;
@@ -33,7 +32,7 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
     private Button newItemBtn;
     private ListView lv;
 
-    private SimpleCursorAdapter simpleCursorAdapter;
+    private ListSummaryCursorAdapter simpleCursorAdapter;
 
     static final String[] projection = new String[] {
         ProximityListContract.ProximityListItem._ID,
@@ -59,7 +58,7 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
         String[] fromCols = { ProximityListContract.ProximityListEntry._ID, ProximityListContract.ProximityListItem.ITEM_NAME };
         int[] toViews     = { 0, R.id.list_summary_item_txt };
 
-        simpleCursorAdapter = new SimpleCursorAdapter(
+        simpleCursorAdapter = new ListSummaryCursorAdapter(
             getBaseContext(),
             R.layout.list_summary_item_layout,
             null,
@@ -69,23 +68,31 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
         );
         lv = (ListView) findViewById(R.id.list_summary_lv);
         lv.setAdapter(simpleCursorAdapter);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                EditText itemTxt = (EditText) view.findViewById(R.id.list_summary_item_txt);
+
+            }
+        });
 
         getLoaderManager().initLoader(0, null, this);
 
         newItemBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addNewItem("abc");
+                addNewItem();
             }
         });
     }
 
-    public void addNewItem(String itemName) {
+    public void addNewItem() {
         ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(ProximityListContract.ProximityListItem.ITEM_NAME, itemName);
+        // Add blank value to be edited by user later:
+        values.put(ProximityListContract.ProximityListItem.ITEM_NAME, "");
         values.put(ProximityListContract.ProximityListItem.LIST_ID, listId);
 
         db.insert(ProximityListContract.ProximityListItem.TABLE_NAME,
