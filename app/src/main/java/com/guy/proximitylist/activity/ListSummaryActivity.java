@@ -22,12 +22,16 @@ import com.guy.proximitylist.content.ListItem;
 import com.guy.proximitylist.db.ProximityListContract;
 import com.guy.proximitylist.db.ProximityListDBHelper;
 
+import java.util.HashMap;
+
 /**
  * Created by Guy on 3/21/2015.
  */
 public class ListSummaryActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static String listId;
+
+    HashMap<String, String[]> currentVals;
 
     private Button newItemBtn;
     private ListView lv;
@@ -55,7 +59,7 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
         listNameLbl.setText(listName);
 
         // Maps DB columns to listview elements:
-        String[] fromCols = { ProximityListContract.ProximityListEntry._ID, ProximityListContract.ProximityListItem.ITEM_NAME };
+        String[] fromCols = { ProximityListContract.ProximityListItem._ID, ProximityListContract.ProximityListItem.ITEM_NAME };
         int[] toViews     = { 0, R.id.list_summary_item_txt };
 
         simpleCursorAdapter = new ListSummaryCursorAdapter(
@@ -72,7 +76,6 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 EditText itemTxt = (EditText) view.findViewById(R.id.list_summary_item_txt);
-
             }
         });
 
@@ -130,5 +133,48 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         simpleCursorAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+
+        currentVals = getCurrentValues();
+    }
+
+    private HashMap<String, String[]> getCurrentValues() {
+        HashMap<String, String[]> currentVals = new HashMap<>();
+
+        ProximityListDBHelper db = new ProximityListDBHelper(getApplicationContext());
+        Cursor c = db.getAllListItems(listId);
+
+        for (int i = 0; i < c.getCount(); i++) {
+            c.moveToPosition(i);
+            String[] vals = {c.getString(0), c.getString(1)};
+            currentVals.put(Integer.toString(i), vals);
+        }
+
+        System.out.println(currentVals.toString());
+
+        return currentVals;
+    }
+
+    private void updateItem(int pos, String newValue) {
+        //ProximityListDBHelper dbHelper = new ProximityListDBHelper(context);
+        //SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        //ContentValues values = new ContentValues();
+        //values.put(ProximityListContract.ProximityListItem.ITEM_NAME, newValue);
+
+
+
+        // Which row to update?
+        //String selection = ProximityListContract.ProximityListItem._ID + " = ?";
+        //String[] selectionArgs = { rowId };
+
+        //db.update(ProximityListContract.ProximityListItem.TABLE_NAME,
+        //        values,
+        //        selection,
+        //        selectionArgs);
     }
 }
