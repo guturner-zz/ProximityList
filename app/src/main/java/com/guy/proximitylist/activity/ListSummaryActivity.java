@@ -1,9 +1,11 @@
 package com.guy.proximitylist.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -22,6 +24,7 @@ import com.guy.proximitylist.content.ListItem;
 import com.guy.proximitylist.db.ProximityListContract;
 import com.guy.proximitylist.db.ProximityListDBHelper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -109,8 +112,51 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
 
     @Override
     public void onBackPressed() {
-        this.finish();
-        overridePendingTransition(0, 0);
+        AlertDialog alert = new AlertDialog.Builder(ListSummaryActivity.this).create();
+        alert.setTitle("Save List?");
+
+        alert.setButton(DialogInterface.BUTTON_POSITIVE, "Save",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
+
+                        ArrayList<String> items = new ArrayList<>();
+
+                        for (int i = 0; i < simpleCursorAdapter.getCount(); i++) {
+                            Cursor c = (Cursor) simpleCursorAdapter.getItem(i);
+                            items.add(c.getString(1));
+                        }
+
+
+                        //dbHelper.clearList(listId);
+
+                        ListSummaryActivity.this.finish();
+                        overridePendingTransition(0, 0);
+                    }
+                });
+
+        alert.setButton(DialogInterface.BUTTON_NEGATIVE, "Don't Save",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
+                        dbHelper.clearNullsInList(listId);
+
+                        ListSummaryActivity.this.finish();
+                        overridePendingTransition(0, 0);
+                    }
+                });
+
+        alert.setButton(DialogInterface.BUTTON_NEUTRAL, "Cancel",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        alert.show();
     }
 
     @Override
@@ -138,43 +184,5 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
     @Override
     public void finish() {
         super.finish();
-
-        currentVals = getCurrentValues();
-    }
-
-    private HashMap<String, String[]> getCurrentValues() {
-        HashMap<String, String[]> currentVals = new HashMap<>();
-
-        ProximityListDBHelper db = new ProximityListDBHelper(getApplicationContext());
-        Cursor c = db.getAllListItems(listId);
-
-        for (int i = 0; i < c.getCount(); i++) {
-            c.moveToPosition(i);
-            String[] vals = {c.getString(0), c.getString(1)};
-            currentVals.put(Integer.toString(i), vals);
-        }
-
-        System.out.println(currentVals.toString());
-
-        return currentVals;
-    }
-
-    private void updateItem(int pos, String newValue) {
-        //ProximityListDBHelper dbHelper = new ProximityListDBHelper(context);
-        //SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        //ContentValues values = new ContentValues();
-        //values.put(ProximityListContract.ProximityListItem.ITEM_NAME, newValue);
-
-
-
-        // Which row to update?
-        //String selection = ProximityListContract.ProximityListItem._ID + " = ?";
-        //String[] selectionArgs = { rowId };
-
-        //db.update(ProximityListContract.ProximityListItem.TABLE_NAME,
-        //        values,
-        //        selection,
-        //        selectionArgs);
     }
 }

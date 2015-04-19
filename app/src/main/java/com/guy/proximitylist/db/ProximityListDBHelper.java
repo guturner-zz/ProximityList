@@ -53,4 +53,20 @@ public class ProximityListDBHelper extends SQLiteOpenHelper {
                 null
         );
     }
+
+    public void clearList(String listId) {
+        db.delete(
+                ProximityListContract.ProximityListItem.TABLE_NAME,
+                ProximityListContract.ProximityListItem.LIST_ID + " = ?",
+                new String[] { listId }
+        );
+    }
+
+    public void clearNullsInList(String listId) {
+        db.delete(
+                ProximityListContract.ProximityListItem.TABLE_NAME,
+                ProximityListContract.ProximityListItem.LIST_ID + " = ? AND " + ProximityListContract.ProximityListItem.ITEM_NAME + " = \"\"",
+                new String[] { listId }
+        );
+    }
 }
