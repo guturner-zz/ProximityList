@@ -67,16 +67,11 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
             null,
             fromCols,
             toViews,
-            0
+            0,
+            listId
         );
         lv = (ListView) findViewById(R.id.list_summary_lv);
         lv.setAdapter(simpleCursorAdapter);
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                EditText itemTxt = (EditText) view.findViewById(R.id.list_summary_item_txt);
-            }
-        });
 
         getLoaderManager().initLoader(0, null, this);
 
@@ -110,9 +105,12 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
                             ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
                             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+                            int pos = dbHelper.getRowCount(listId);
+
                             ContentValues values = new ContentValues();
                             values.put(ProximityListContract.ProximityListItem.ITEM_NAME, newItemName);
                             values.put(ProximityListContract.ProximityListItem.LIST_ID, listId);
+                            values.put(ProximityListContract.ProximityListItem.LIST_POS, pos + 1);
 
                             db.insert(ProximityListContract.ProximityListItem.TABLE_NAME,
                                     "null",
@@ -141,9 +139,9 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
     @Override
     public void onBackPressed() {
         AlertDialog alert = new AlertDialog.Builder(ListSummaryActivity.this).create();
-        alert.setTitle("Quit?");
+        alert.setTitle("Done Editing?");
 
-        alert.setButton(DialogInterface.BUTTON_POSITIVE, "Quit",
+        alert.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

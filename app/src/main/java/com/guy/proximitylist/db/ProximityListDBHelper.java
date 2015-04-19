@@ -54,6 +54,19 @@ public class ProximityListDBHelper extends SQLiteOpenHelper {
         );
     }
 
+    public int getRowCount(String listId) {
+        Cursor c = db.rawQuery("select count(*) from " + ProximityListContract.ProximityListItem.TABLE_NAME +
+                               " where " + ProximityListContract.ProximityListItem.LIST_ID + " = " + listId, null);
+        if (c != null) {
+            c.moveToFirst();
+            int count = c.getInt(0);
+            c.close();
+            return count;
+        }
+
+        return 0;
+    }
+
     public void clearList(String listId) {
         db.delete(
                 ProximityListContract.ProximityListItem.TABLE_NAME,
