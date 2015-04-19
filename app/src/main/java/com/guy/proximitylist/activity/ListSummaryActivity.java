@@ -11,6 +11,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -24,17 +25,12 @@ import com.guy.proximitylist.content.ListItem;
 import com.guy.proximitylist.db.ProximityListContract;
 import com.guy.proximitylist.db.ProximityListDBHelper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 /**
  * Created by Guy on 3/21/2015.
  */
 public class ListSummaryActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static String listId;
-
-    HashMap<String, String[]> currentVals;
 
     private Button newItemBtn;
     private ListView lv;
@@ -96,53 +92,61 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
         ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        // Add blank value to be edited by user later:
-        values.put(ProximityListContract.ProximityListItem.ITEM_NAME, "");
-        values.put(ProximityListContract.ProximityListItem.LIST_ID, listId);
-
-        db.insert(ProximityListContract.ProximityListItem.TABLE_NAME,
-                "null",
-                values);
-
-        // Reload ListView:
-        Cursor c = dbHelper.getAllListItems(listId);
-        simpleCursorAdapter.swapCursor(c);
-    }
-
-    @Override
-    public void onBackPressed() {
         AlertDialog alert = new AlertDialog.Builder(ListSummaryActivity.this).create();
-        alert.setTitle("Save List?");
+        alert.setTitle("New Item");
+
+        LayoutInflater inflater = getLayoutInflater();
+        final View view = inflater.inflate(R.layout.new_obj_layout, null);
+        alert.setView(view);
 
         alert.setButton(DialogInterface.BUTTON_POSITIVE, "Save",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
+                        EditText newItemNameTxt = (EditText) view.findViewById(R.id.new_obj_name_txt);
+                        String newItemName      = newItemNameTxt.getText().toString();
 
-                        ArrayList<String> items = new ArrayList<>();
+                        if (!newItemName.equals("")) {
+                            ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
+                            SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-                        for (int i = 0; i < simpleCursorAdapter.getCount(); i++) {
-                            Cursor c = (Cursor) simpleCursorAdapter.getItem(i);
-                            items.add(c.getString(1));
+                            ContentValues values = new ContentValues();
+                            values.put(ProximityListContract.ProximityListItem.ITEM_NAME, newItemName);
+                            values.put(ProximityListContract.ProximityListItem.LIST_ID, listId);
+
+                            db.insert(ProximityListContract.ProximityListItem.TABLE_NAME,
+                                    "null",
+                                    values);
+
+                            // Reload ListView:
+                            Cursor c = dbHelper.getAllListItems(listId);
+                            simpleCursorAdapter.swapCursor(c);
+
+                            db.close();
                         }
-
-
-                        //dbHelper.clearList(listId);
-
-                        ListSummaryActivity.this.finish();
-                        overridePendingTransition(0, 0);
                     }
                 });
 
-        alert.setButton(DialogInterface.BUTTON_NEGATIVE, "Don't Save",
+        alert.setButton(DialogInterface.BUTTON_NEUTRAL, "Cancel",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
-                        dbHelper.clearNullsInList(listId);
+                        dialog.cancel();
+                    }
+                });
 
+        alert.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog alert = new AlertDialog.Builder(ListSummaryActivity.this).create();
+        alert.setTitle("Quit?");
+
+        alert.setButton(DialogInterface.BUTTON_POSITIVE, "Quit",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
                         ListSummaryActivity.this.finish();
                         overridePendingTransition(0, 0);
                     }

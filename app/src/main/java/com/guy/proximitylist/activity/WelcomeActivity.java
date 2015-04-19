@@ -9,14 +9,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -127,14 +123,14 @@ public class WelcomeActivity extends Activity implements LoaderManager.LoaderCal
                 alert.setTitle("New List");
 
                 LayoutInflater inflater = getLayoutInflater();
-                final View view = inflater.inflate(R.layout.new_list_entry_layout, null);
+                final View view = inflater.inflate(R.layout.new_obj_layout, null);
                 alert.setView(view);
 
                 alert.setButton(DialogInterface.BUTTON_POSITIVE, "OK",
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                newEntryNameTxt = (EditText) view.findViewById(R.id.new_list_name_txt);
+                                newEntryNameTxt = (EditText) view.findViewById(R.id.new_obj_name_txt);
                                 createNewList(newEntryNameTxt.getText().toString());
                             }
                         });
@@ -194,6 +190,8 @@ public class WelcomeActivity extends Activity implements LoaderManager.LoaderCal
         // Reload ListView:
         Cursor c = dbHelper.getAllListEntries();
         simpleCursorAdapter.swapCursor(c);
+
+        db.close();
     }
 
     @Override
