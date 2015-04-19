@@ -12,4 +12,3 @@ Demonstrates knowledge of:
 - Java
 - Android SDK
 - SQLite for Android
-- 
