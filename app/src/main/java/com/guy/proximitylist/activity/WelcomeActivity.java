@@ -29,8 +29,17 @@ import com.guy.proximitylist.db.ProximityListDBHelper;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+/**
+ * The main screen users see upon opening the app.
+ * From here, users may:
+ *   - create new lists
+ *   - open existing lists
+ *
+ * Created by Guy on 3/14/2015.
+ */
 public class WelcomeActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    /* Data to be transferred to other screens */
     public static final String EXTRA_LIST_NAME = "com.guy.proximitylist.activity.LISTNAME";
     public static final String EXTRA_LIST_ID   = "com.guy.proximitylist.activity.LISTID";
 
@@ -49,16 +58,18 @@ public class WelcomeActivity extends Activity implements LoaderManager.LoaderCal
 
     private LocationManager locationManager;
 
+    /* UI Elements */
+    private Button   findCoordBtn;
     private EditText latitudeEditTxt;
     private EditText longitudeEditTxt;
+    private ListView lv;
     private EditText newEntryNameTxt;
-    private Button   findCoordBtn;
     private Button   newListBtn;
     private Button   saveCoordBtn;
-    private ListView lv;
 
     private SimpleCursorAdapter simpleCursorAdapter;
 
+    /* Used to translate database columns to ListView rows */
     static final String[] projection = new String[] {
         ProximityListContract.ProximityListEntry._ID,
         ProximityListContract.ProximityListEntry.ENTRY_NAME
@@ -87,7 +98,7 @@ public class WelcomeActivity extends Activity implements LoaderManager.LoaderCal
         //locOneBtn = (Button)findViewById(R.id.loc_1_btn);
         //locTwoBtn = (Button)findViewById(R.id.loc_2_btn);
 
-        // Maps DB columns to listview elements:
+        // Maps DB columns to ListView elements:
         String[] fromCols = { ProximityListContract.ProximityListEntry._ID, ProximityListContract.ProximityListEntry.ENTRY_NAME };
         int[] toViews     = { 0, R.id.list_name_txt };
 
@@ -100,6 +111,7 @@ public class WelcomeActivity extends Activity implements LoaderManager.LoaderCal
                 toViews,
                 0
         );
+
         lv = (ListView) findViewById(R.id.lists_lv);
         lv.setAdapter(simpleCursorAdapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -122,6 +134,7 @@ public class WelcomeActivity extends Activity implements LoaderManager.LoaderCal
                 AlertDialog alert = new AlertDialog.Builder(WelcomeActivity.this).create();
                 alert.setTitle("New List");
 
+                /* Set the layout within the 'New List' popup */
                 LayoutInflater inflater = getLayoutInflater();
                 final View view = inflater.inflate(R.layout.new_obj_layout, null);
                 alert.setView(view);
@@ -167,6 +180,13 @@ public class WelcomeActivity extends Activity implements LoaderManager.LoaderCal
 
     }
 
+    /**
+     * Switch to the List Summary screen for a given list, carry over list name and list id.
+     *
+     * @param view
+     * @param listName
+     * @param listId
+     */
     private void openListSummary(View view, String listName, String listId) {
         Intent intent   = new Intent(this, ListSummaryActivity.class);
         intent.putExtra(EXTRA_LIST_NAME, listName);
@@ -176,6 +196,11 @@ public class WelcomeActivity extends Activity implements LoaderManager.LoaderCal
         overridePendingTransition(0, 0);
     }
 
+    /**
+     * The 'Create List' button action.
+     *
+     * @param listName
+     */
     private void createNewList(String listName) {
         ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();

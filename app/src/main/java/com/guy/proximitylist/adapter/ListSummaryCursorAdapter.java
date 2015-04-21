@@ -20,20 +20,36 @@ import com.guy.proximitylist.db.ProximityListDBHelper;
 import java.util.HashMap;
 
 /**
+ * Holds logic for the 'List Summary' ListView.
+ * Controls what happens when:
+ *   - users click the 'X' button beside a list item.
+ *   - users click a list item name.
+ *
  * Created by Guy on 3/23/2015.
  */
 public class ListSummaryCursorAdapter extends SimpleCursorAdapter {
 
     private String listId;
     private Context context;
-    private Cursor cursor;
 
+    /* UI Elements */
     ListSummaryViewHolder vh;
 
+    /**
+     * This constructor accepts a listId which is useful for database operations (what list to
+     * delete a list item from, etc.)
+     *
+     * @param context
+     * @param layout
+     * @param cursor
+     * @param from
+     * @param to
+     * @param flags
+     * @param listId
+     */
     public ListSummaryCursorAdapter(Context context, int layout, Cursor cursor, String[] from, int[] to, int flags, String listId) {
         super(context, layout, cursor, from, to, flags);
         this.context = context;
-        this.cursor  = cursor;
         this.listId = listId;
     }
 
@@ -54,12 +70,16 @@ public class ListSummaryCursorAdapter extends SimpleCursorAdapter {
             vh.itemTxt  = (TextView) convertView.findViewById(R.id.list_summary_item_txt);
             vh.checkBtn = (Button) convertView.findViewById(R.id.list_summary_check_btn);
 
+            /**
+             * What happens when user clicks the 'X' beside a list item
+             */
             vh.checkBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ProximityListDBHelper dbHelper = new ProximityListDBHelper(context);
                     SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+                    /* Retrieve the _ID of the list item to delete */
                     Cursor c1 = db.rawQuery("select * from " + ProximityListContract.ProximityListItem.TABLE_NAME, null);
                     c1.moveToPosition(position);
                     int deleteRow = c1.getInt(0);
@@ -81,8 +101,15 @@ public class ListSummaryCursorAdapter extends SimpleCursorAdapter {
         return super.getView(position, convertView, parent);
     }
 
+    /**
+     * This class represents the UI elements in the ListView.
+     *
+     *  +---+ --------------
+     *  | X | SOME ITEM NAME
+     *  +---+ --------------
+     */
     static class ListSummaryViewHolder {
-        TextView itemTxt;
         Button checkBtn;
+        TextView itemTxt;
     }
 }

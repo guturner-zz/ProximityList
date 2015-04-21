@@ -26,17 +26,24 @@ import com.guy.proximitylist.db.ProximityListContract;
 import com.guy.proximitylist.db.ProximityListDBHelper;
 
 /**
+ * The screen the user sees upon clicking an existing list name on the Welcome screen.
+ * From here, users may:
+ *   - add items to a list
+ *   - remove items from a list
+ *
  * Created by Guy on 3/21/2015.
  */
 public class ListSummaryActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static String listId;
 
-    private Button newItemBtn;
+    /* UI Elements */
     private ListView lv;
+    private Button newItemBtn;
 
     private ListSummaryCursorAdapter simpleCursorAdapter;
 
+    /* Used to translate database columns to ListView rows */
     static final String[] projection = new String[] {
         ProximityListContract.ProximityListItem._ID,
         ProximityListContract.ProximityListItem.ITEM_NAME
@@ -49,15 +56,16 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
 
         newItemBtn = (Button) findViewById(R.id.new_item_btn);
 
-        // Receive intent:
+        // Receive data from previous screen:
         Intent intent   = getIntent();
         String listName = intent.getStringExtra(WelcomeActivity.EXTRA_LIST_NAME);
         listId          = intent.getStringExtra(WelcomeActivity.EXTRA_LIST_ID);
 
+        // Set screen subtitle (list name):
         TextView listNameLbl = (TextView) findViewById(R.id.list_name_lbl);
         listNameLbl.setText(listName);
 
-        // Maps DB columns to listview elements:
+        // Maps DB columns to ListView elements:
         String[] fromCols = { ProximityListContract.ProximityListItem._ID, ProximityListContract.ProximityListItem.ITEM_NAME };
         int[] toViews     = { 0, R.id.list_summary_item_txt };
 
@@ -70,6 +78,7 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
             0,
             listId
         );
+
         lv = (ListView) findViewById(R.id.list_summary_lv);
         lv.setAdapter(simpleCursorAdapter);
 
@@ -83,17 +92,21 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
         });
     }
 
+    /**
+     * The 'Add Item' button action, opens a popup.
+     */
     public void addNewItem() {
-        ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
         AlertDialog alert = new AlertDialog.Builder(ListSummaryActivity.this).create();
         alert.setTitle("New Item");
 
+        /* Set the layout within the alert */
         LayoutInflater inflater = getLayoutInflater();
         final View view = inflater.inflate(R.layout.new_obj_layout, null);
         alert.setView(view);
 
+        /**
+         * Add an item to the list.
+         */
         alert.setButton(DialogInterface.BUTTON_POSITIVE, "Save",
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -101,16 +114,14 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
                         EditText newItemNameTxt = (EditText) view.findViewById(R.id.new_obj_name_txt);
                         String newItemName      = newItemNameTxt.getText().toString();
 
+                        /* Don't save empty strings to the database */
                         if (!newItemName.equals("")) {
                             ProximityListDBHelper dbHelper = new ProximityListDBHelper(getApplicationContext());
                             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-                            int pos = dbHelper.getRowCount(listId);
-
                             ContentValues values = new ContentValues();
                             values.put(ProximityListContract.ProximityListItem.ITEM_NAME, newItemName);
                             values.put(ProximityListContract.ProximityListItem.LIST_ID, listId);
-                            values.put(ProximityListContract.ProximityListItem.LIST_POS, pos + 1);
 
                             db.insert(ProximityListContract.ProximityListItem.TABLE_NAME,
                                     "null",
@@ -125,6 +136,9 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
                     }
                 });
 
+        /**
+         * DON'T add an item to the list.
+         */
         alert.setButton(DialogInterface.BUTTON_NEUTRAL, "Cancel",
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -141,6 +155,9 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
         AlertDialog alert = new AlertDialog.Builder(ListSummaryActivity.this).create();
         alert.setTitle("Done Editing?");
 
+        /**
+         * Leave List Summary screen.
+         */
         alert.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -150,6 +167,9 @@ public class ListSummaryActivity extends Activity implements LoaderManager.Loade
                     }
                 });
 
+        /**
+         * STAY on page.
+         */
         alert.setButton(DialogInterface.BUTTON_NEUTRAL, "Cancel",
                 new DialogInterface.OnClickListener() {
                     @Override

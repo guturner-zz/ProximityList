@@ -6,6 +6,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
+ * Utility class for common database operations:
+ *   - select all lists
+ *   - select all items in a given list
+ *   - etc.
+ *
  * Created by Guy on 3/14/2015.
  */
 public class ProximityListDBHelper extends SQLiteOpenHelper {
@@ -30,6 +35,11 @@ public class ProximityListDBHelper extends SQLiteOpenHelper {
         // Do nothing
     }
 
+    /**
+     * Returns all _ID and ENTRY_NAME column values (i.e. all list names)
+     *
+     * @return Cursor
+     */
     public Cursor getAllListEntries() {
         return db.query(
                 ProximityListContract.ProximityListEntry.TABLE_NAME,
@@ -42,6 +52,12 @@ public class ProximityListDBHelper extends SQLiteOpenHelper {
         );
     }
 
+    /**
+     * Returns all _ID and ITEM_NAME column values for a given list (i.e. all item names in a given list).
+     *
+     * @param listId
+     * @return Cursor
+     */
     public Cursor getAllListItems(String listId) {
         return db.query(
                 ProximityListContract.ProximityListItem.TABLE_NAME,
@@ -54,6 +70,12 @@ public class ProximityListDBHelper extends SQLiteOpenHelper {
         );
     }
 
+    /**
+     * Returns number of items in a given list.
+     *
+     * @param listId
+     * @return int representing number of items in a list
+     */
     public int getRowCount(String listId) {
         Cursor c = db.rawQuery("select count(*) from " + ProximityListContract.ProximityListItem.TABLE_NAME +
                                " where " + ProximityListContract.ProximityListItem.LIST_ID + " = " + listId, null);
@@ -67,18 +89,15 @@ public class ProximityListDBHelper extends SQLiteOpenHelper {
         return 0;
     }
 
+    /**
+     * Permanently deletes all items in a list.
+     *
+     * @param listId
+     */
     public void clearList(String listId) {
         db.delete(
                 ProximityListContract.ProximityListItem.TABLE_NAME,
                 ProximityListContract.ProximityListItem.LIST_ID + " = ?",
-                new String[] { listId }
-        );
-    }
-
-    public void clearNullsInList(String listId) {
-        db.delete(
-                ProximityListContract.ProximityListItem.TABLE_NAME,
-                ProximityListContract.ProximityListItem.LIST_ID + " = ? AND " + ProximityListContract.ProximityListItem.ITEM_NAME + " = \"\"",
                 new String[] { listId }
         );
     }
