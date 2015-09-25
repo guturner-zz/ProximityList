@@ -1,7 +1,7 @@
 # ProximityList
 Android 'Shopping List' App with GPS Proximity Alerts.
 
-**This application is under heavy development!** Check back for updates.
+**This project is currently on hold while I pursue other interests.** Check back for updates.
 
 # Updates
 - Commit ca0cd9f: Fully refactored for readability, next steps will be extending UI for usability.
